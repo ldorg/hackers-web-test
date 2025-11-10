@@ -51,14 +51,14 @@ jobs:
         name: Build container image
         uses: docker://gcr.io/kaniko-project/executor:debug
         run: |
-          /kaniko/executor --context $CLOUDBEES_WORKSPACE --dockerfile $CLOUDBEES_WORKSPACE/Dockerfile --destination ${{ vars.DOCKER_USER }}/ld-hackers-web:${{ cloudbees.version }} --tar-path $CLOUDBEES_WORKSPACE/container-image.tar
+          /kaniko/executor --context $CLOUDBEES_WORKSPACE --dockerfile $CLOUDBEES_WORKSPACE/Dockerfile --destination ${{ vars.DOCKER_USER }}/ld-hackers-web:${{ cloudbees.version }} --tar-path $CLOUDBEES_WORKSPACE/container-image.tar --digest-file $CLOUDBEES_OUTPUTS/IMAGE_DIGEST
       - name: Register an artifact with the platform
         id: register
         uses: cloudbees-io/register-build-artifact@v1
         with:
           name: hackers-web
           version: ${{ cloudbees.version }}
-          digest: sha256:fe315aaagc92934857cdef===
+          digest: ${{ steps.build-container.outputs.IMAGE_DIGEST }}
           url: ${{ vars.DOCKER_USER }}/ld-hackers-web:${{ cloudbees.version }}
       - uses: cloudbees-io/asset-chain-utils-preprod/upload-binary@v1
         name: Upload binary from container build
